@@ -288,18 +288,42 @@ submit.addEventListener("click", function (event) {
   let mail = document.querySelector("#email").value;
 
   // -------------------- Objet contact / Object tableau -------------------- //
-  let objetContact = {
-    prenom: prenom,
-    nom: nom,
-    adresse: adresse,
-    ville: ville,
-    mail: mail,
+  let contact = {
+    firstName: prenom,
+    lastName: nom,
+    address: adresse,
+    city: ville,
+    email: mail,
   };
 
   let tabProduit = getBasket();
 
-  document.location.href="./confirmation.html";
+  let products = [];
 
-  //   console.log("contact : " + JSON.stringify(objetContact));
-  //   console.log("panier : " + JSON.stringify(tabProduit));
+  for (produit of tabProduit) {
+    products.push(produit.id);
+  }
+
+  // -------------------- Récupération du numéro de commande -------------------- //
+
+  /*   let request = new Request(api, {
+    method: "POST",
+    body: JSON.stringify(contact),
+    headers: new Headers(),
+  });
+
+  fetch(request).then(function (response) {
+    console.log(response.json);
+  }); */
+
+  fetch(api, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json", 
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(contact), 
+  });
+
+  //   document.location.href = "./confirmation.html";
 });
