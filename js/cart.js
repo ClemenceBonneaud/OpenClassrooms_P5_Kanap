@@ -236,94 +236,184 @@ fetch(api)
 // ------------------------------ Validation du panier ------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-let submit = document.querySelector("#order");
+////////// Validation du formulaire //////////
 
-submit.addEventListener("click", function (event) {
-  event.preventDefault();
+// Récupération des input
+let firstName = document.querySelector("#firstName");
+let lastName = document.querySelector("#lastName");
+let address = document.querySelector("#address");
+let city = document.querySelector("#city");
+let email = document.querySelector("#email");
 
-  // Récupération des input
-  let firstName = document.querySelector("#firstName");
-  let lastName = document.querySelector("#lastName");
-  let address = document.querySelector("#address");
-  let city = document.querySelector("#city");
-  let email = document.querySelector("#email");
+// Récupération des messages
+let firstNameMessage = document.querySelector("#firstNameErrorMsg");
+let lastNameMessage = document.querySelector("#lastNameErrorMsg");
+let addressMessage = document.querySelector("#addressErrorMsg");
+let cityMessage = document.querySelector("#cityErrorMsg");
+let emailMessage = document.querySelector("#emailErrorMsg");
 
-  // Récupération des messages
-  let firstNameMessage = document.querySelector("#firstNameErrorMsg");
-  let lastNameMessage = document.querySelector("#lastNameErrorMsg");
-  let addressMessage = document.querySelector("#addressErrorMsg");
-  let cityMessage = document.querySelector("#cityErrorMsg");
-  let emailMessage = document.querySelector("#emailErrorMsg");
+// Création reg exp
+let regName = new RegExp("^[a-zA-Z-'.\u00C0-\u00FF]*$");
+let regAddress = new RegExp("^[a-zA-Z0-9%'\"-&*,\u00C0-\u00FFs]+");
+let regEmail = new RegExp(
+  "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
+);
 
-  // Messages par défaut
-  firstNameMessage.innerText = "";
-  lastNameMessage.innerText = "";
-  addressMessage.innerText = "";
-  cityMessage.innerText = "";
-  emailMessage.innerText = "";
-
-  // Messages en cas d'erreur
-  firstName.oninvalid = function () {
+// FirstName
+const validFirstName = function (inputFirstName) {
+  // Création test
+  let testFirstName = regName.test(inputFirstName.value);
+  // Si le nom ne correspond pas au reg exp
+  if (testFirstName) {
+    firstNameMessage.innerText = "";
+    return true;
+  } else {
     firstNameMessage.innerText = "Veuillez saisir un prénom";
-  };
-  lastName.oninvalid = function () {
+    return false;
+  }
+};
+
+// LastName
+const validLastName = function (inputLastName) {
+  let testLastName = regName.test(inputLastName.value);
+  if (testLastName) {
+    lastNameMessage.innerText = "";
+    return true;
+  } else {
     lastNameMessage.innerText = "Veuillez saisir un nom";
-  };
-  address.oninvalid = function () {
+    return false;
+  }
+};
+
+// Address
+const validAddress = function (inputAddress) {
+  let testAddress = regAddress.test(inputAddress.value);
+  if (testAddress) {
+    addressMessage.innerText = "";
+    return true;
+  } else {
     addressMessage.innerText = "Veuillez saisir une adresse";
-  };
-  city.oninvalid = function () {
+    return false;
+  }
+};
+
+// City
+const validCity = function (inputCity) {
+  let testCity = regName.test(inputCity.value);
+  if (testCity) {
+    cityMessage.innerText = "";
+    return true;
+  } else {
     cityMessage.innerText = "Veuillez saisir une ville";
-  };
-  email.oninvalid = function () {
+    return false;
+  }
+};
+
+// Email
+const validEmail = function (inputEmail) {
+  let testEmail = regEmail.test(inputEmail.value);
+  if (testEmail) {
+    emailMessage.innerText = "";
+    return true;
+  } else {
     emailMessage.innerText =
       "Veuillez saisir un email valide \nex : monkanap@kanap.com";
-  };
-
-  // Récupération des informations fournies
-  let prenom = document.querySelector("#firstName").value;
-  let nom = document.querySelector("#lastName").value;
-  let adresse = document.querySelector("#address").value;
-  let ville = document.querySelector("#city").value;
-  let mail = document.querySelector("#email").value;
-
-  // -------------------- Objet contact / Object tableau -------------------- //
-  let contact = {
-    firstName: prenom,
-    lastName: nom,
-    address: adresse,
-    city: ville,
-    email: mail,
-  };
-
-  let tabProduit = getBasket();
-
-  let products = [];
-
-  for (produit of tabProduit) {
-    products.push(produit.id);
+    return false;
   }
+};
 
-  // -------------------- Récupération du numéro de commande -------------------- //
+// Ecoute des modifications
+let form = document.querySelector(".cart__order__form");
 
-  /*   let request = new Request(api, {
-    method: "POST",
-    body: JSON.stringify(contact),
-    headers: new Headers(),
-  });
+form.firstName.addEventListener("change", function () {
+  validFirstName(this);
+});
 
-  fetch(request).then(function (response) {
-    console.log(response.json);
-  }); */
+form.lastName.addEventListener("change", function () {
+  validLastName(this);
+});
 
-  fetch(api, {
-    method: "POST",
-    headers: {
-      "Accept": "application/json", 
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(contact), 
-  });
+form.address.addEventListener("change", function () {
+  validAddress(this);
+});
 
-  //   document.location.href = "./confirmation.html";
+form.city.addEventListener("change", function () {
+  validCity(this);
+});
+
+form.email.addEventListener("change", function () {
+  validEmail(this);
+});
+
+////////// Envoi du formulaire //////////
+
+form.addEventListener("submit", function (event) {
+  // On empêche le submit par défaut
+  event.preventDefault();
+
+  // Si toutes les informations saisies sont valides
+  if (
+    validFirstName(form.firstName) &&
+    validLastName(form.lastName) &&
+    validAddress(form.address) &&
+    validCity(form.city) &&
+    validEmail(form.email)
+  ) {
+    // Récupération des informations fournies
+    let prenom = document.querySelector("#firstName").value;
+    let nom = document.querySelector("#lastName").value;
+    let adresse = document.querySelector("#address").value;
+    let ville = document.querySelector("#city").value;
+    let mail = document.querySelector("#email").value;
+
+    // -------------------- Objet contact / Object tableau -------------------- //
+    // Contact
+    let contact = {
+      firstName: prenom,
+      lastName: nom,
+      address: adresse,
+      city: ville,
+      email: mail,
+    };
+
+    // Produits
+    let tabProduit = getBasket();
+    let products = [];
+    for (produit of tabProduit) {
+      products.push(produit.id);
+    }
+
+    // Contact + Produits
+    let toSend = { contact, products };
+    console.log(toSend);
+    console.log(JSON.stringify(toSend));
+
+    // -------------------- Envoi du formulaire -------------------- //
+    const sendToApi = fetch(api, order, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(toSend),
+    });
+
+    // Récupération du résultat
+    sendToApi.then(async (response) => {
+      try {
+        const contenu = await response.json();
+        console.log("contenu réponse : " + contenu);
+        console.log("contenu réponse stringify : " + JSON.stringify(contenu));
+
+        if (response.ok) {
+          console.log("résultat de réponse : " + response.ok);
+        } else {
+          console.log("réponse du serveur : " + response.status);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    });
+
+    //   document.location.href = "./confirmation.html";
+  }
 });
