@@ -2,6 +2,7 @@
 
 // Stockage de l'url de l'API
 const api = "http://localhost:3000/api/products";
+const apiPost = "http://localhost:3000/api/products/order";
 
 // Stockage des éléments à ajouter au HTML
 const elt = `<article class="cart__item" data-id="" data-color"">
@@ -382,38 +383,31 @@ form.addEventListener("submit", function (event) {
     for (produit of tabProduit) {
       products.push(produit.id);
     }
-
-    // Contact + Produits
-    let toSend = { contact, products };
-    console.log(toSend);
-    console.log(JSON.stringify(toSend));
+    console.log(JSON.stringify({ contact: contact, products: products }));
 
     // -------------------- Envoi du formulaire -------------------- //
-    const sendToApi = fetch(api, order, {
+    fetch(apiPost, {
       method: "POST",
+      body: JSON.stringify({ contact: contact, products: products }),
       headers: {
-        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Content-type": "application/json",
       },
-      body: JSON.stringify(toSend),
-    });
-
-    // Récupération du résultat
-    sendToApi.then(async (response) => {
-      try {
-        const contenu = await response.json();
-        console.log("contenu réponse : " + contenu);
-        console.log("contenu réponse stringify : " + JSON.stringify(contenu));
-
-        if (response.ok) {
-          console.log("résultat de réponse : " + response.ok);
-        } else {
-          console.log("réponse du serveur : " + response.status);
+    })
+      // Récupération du résultat
+      .then(async (response) => {
+        try {
+          // Récupération de la réponse de l'api
+          const contenu = await response.json();
+          if (response.ok) {
+            // Récupération du numéro de commande et envoi page confirmation
+            document.location.href = `./confirmation.html?id=${contenu.orderId}`;
+          } else {
+            console.log("problème coté serveur : " + response.status);
+          }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
-      }
-    });
-
-    //   document.location.href = "./confirmation.html";
+      });
   }
 });
